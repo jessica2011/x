@@ -1,37 +1,22 @@
-// materialize
-$(document).ready(function() {
-  $('.button-collapse').sideNav();
-  $('.modal').modal();
-});
+addEventListener('click',function finMe(){
+  var output =  document.getElementById('map');
 
-// Enlazar los link de signUp y login
-$(document).ready(function() {
-  $('.enlace-login-js').click(function() {
-    $('#initial').addClass('hide');
-    $('#signUp').removeClass('hide');
-  });
-  $('.enlace-signUp-js').click(function() {
-    $('#initial').addClass('hide');
-    $('#login').removeClass('hide');
-  });
-  $('.a-login-js').click(function() {
-    $('#signUp').addClass('hide');
-    $('#login').removeClass('hide');
-  });
-  $('.a-signUp-js').click(function() {
-    $('#login').addClass('hide');
-    $('#signUp').removeClass('hide');
-  });
-});
-// Initialize Firebase
-var config = {
-  apiKey: "AIzaSyDIDfsDD7GtqJQtfMoDwaZOcKLsHNZ9GY8",
-  authDomain: "redsocial-freechic.firebaseapp.com",
-  databaseURL: "https://redsocial-freechic.firebaseio.com",
-  projectId: "redsocial-freechic",
-  storageBucket: "",
-  messagingSenderId: "911815571490"
-};
-firebase.initializeApp(config);
+  if(navigator.geolocation){
+    output.innerHTML = "<p>Tu navegador soporta Geolocalización</p>";
+  }else {
+    output.innerHTML = "<p>Tu navegador no soporta Geolocalización</p>"; 
+  }
 
+  function location (position) {
+    var latitude = position.coords.latitude;
+    var longitude = position.coords.longitude;
 
+    output.innerHTML = "<p>Latitud: "+ latitude +" <br>Longitud: " +longitude+"</p>"
+  }
+
+  function error(){
+    output.innerHTML = "<p>No se puede obtener tu ubicación</p>"
+  }
+
+  navigator.geolocation.getCurrentPosition(location,error);
+}) 
