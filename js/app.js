@@ -1,22 +1,71 @@
-addEventListener('click',function finMe(){
-  var output =  document.getElementById('map');
+function initMap() {
+  var latitud,longitud, marker;
+  var cityUbication = {lat:-12.023545 , lng: -77.014166};
+  var map = new google.maps.Map(document.getElementById('map'), {
+    center: cityUbication,
+    zoom: 6
+  });
+  var miUbicacion = function(posicion) {
+    latitud = posicion.coords.latitude;
+    longitud = posicion.coords.longitude;
 
-  if(navigator.geolocation){
-    output.innerHTML = "<p>Tu navegador soporta Geolocalización</p>";
-  }else {
-    output.innerHTML = "<p>Tu navegador no soporta Geolocalización</p>"; 
+    marker = new google.maps.Marker({
+      map: map,
+      draggable: true,
+      animation: google.maps.Animation.DROP,
+      position: cityUbication
+    });
+    marker.addListener('click',function toggleBounce() {
+      if (marker.getAnimation() !== null) {
+        marker.setAnimation(null);
+      } else {
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+      }
+    });
+  
+    map.setZoom(13);
+    map.setCenter(cityUbication);
+  }
+  var error = function (error) {
+    window.alert("No se puede obtener tu localización");
   }
 
-  function location (position) {
-    var latitude = position.coords.latitude;
-    var longitude = position.coords.longitude;
-
-    output.innerHTML = "<p>Latitud: "+ latitude +" <br>Longitud: " +longitude+"</p>"
+  function search() {
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(miUbicacion,error);
+    }
   }
 
-  function error(){
-    output.innerHTML = "<p>No se puede obtener tu ubicación</p>"
+  var pointStart = document.getElementById("point-start");
+  var pointDestination = document.getElementById("point-destination");
+  new google.maps.places.Autocomplete(pointStart);
+  new google.maps.places.Autocomplete(pointDestination);
+
+  var directionService = new google.maps.DirectionsService;
+  var directionRendere= new google.maps.DirectionsRenderer;
+
+  document.getElementById('button-myUbication').addEventListener("click",function(){
+    pointStart.value = latitud + ' ' +longitud
+  });
+
+  var route = function (direccionService, direccionDisplay) {
+    var request = {
+      origin: pointStart.value,
+      destination: pointDestination.value,
+      travelMode: 'DRIVING'
+    };
+    direccionService.route(request, function(result, status) {
+      if (status == 'OK') {
+        directionRendere.setDirections(result);
+      }
+    });
+    directionRendere.setMap(map);
+    marker.setMap(null);
   }
 
-  navigator.geolocation.getCurrentPosition(location,error);
-}) 
+  window.addEventListener("load", search);
+  document.getElementById('button-router').addEventListener("click",function(){
+    route(directionService, directionRendere);
+  });
+
+}
